@@ -1,7 +1,7 @@
 #include "cpu.h"
 
 void CPU::opcode_00() { opcode_nop(); }
-void CPU::opcode_01() {}
+void CPU::opcode_01() {  }
 void CPU::opcode_02() {}
 void CPU::opcode_03() {}
 void CPU::opcode_04() {}
@@ -271,8 +271,6 @@ void CPU::opcode_fc() {}
 void CPU::opcode_fd() {}
 void CPU::opcode_fe() {}
 void CPU::opcode_ff() {}
-
-
 
 
 

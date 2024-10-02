@@ -20,35 +20,39 @@ void ByteRegister::decrement() {
 
 /* Flag Register */
 void FlagRegister::set_zero_flag(bool val){
-
+    uint8_t mask = (val << 7);
+    val_ |= mask;
 }
 
 void FlagRegister::set_subtract_flag(bool val) {
-    
+    uint8_t mask = (val << 6);
+    val_ |= mask;
 }
 
 void FlagRegister::set_half_carry_flag(bool val) {
-    
+    uint8_t mask = (val << 5);
+    val_ |= mask;
 }
 
 void FlagRegister::set_carry_flag(bool val) {
-    
+    uint8_t mask = (val << 4);
+    val_ |= mask;
 }
 
 uint8_t FlagRegister::get_zero_flag() const {
-    
+   return (val_ >> 7) & 0x1; 
 }
 
 uint8_t FlagRegister::get_subtract_flag() const {
-    
+    return (val_ >> 6) & 0x1;
 }
 
 uint8_t FlagRegister::get_half_carry_flag() const {
-    
+    return (val_ >> 5) & 0x1;
 }
 
 uint8_t FlagRegister::get_carry_flag() const {
-    
+    return (val_ >> 4) & 0x1;
 }
 
 
@@ -81,19 +85,24 @@ uint8_t WordRegister::low_byte() const {
 
 /* Pair Register */
 void PairRegister::set_val(uint16_t value) {
-    // TODO
+    uint8_t msb = (value >> 8);
+    uint8_t lsb = (value & 0xff);
+    high_byte_.set_val(msb);
+    low_byte_.set_val(lsb);
 }
 
 uint16_t PairRegister::get_val() const {
-    // TODO
+    return (high_byte_.get_val() << 8) + low_byte_.get_val();
 }
 
 void PairRegister::increment() {
-    // TODO
+    uint16_t curr_val = get_val();
+    set_val(curr_val + 1);
 }
 
 void PairRegister::decrement() {
-    // TODO
+    uint16_t curr_val = get_val();
+    set_val(curr_val - 1);
 }
 
 uint8_t PairRegister::high_byte() const {

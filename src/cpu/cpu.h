@@ -16,6 +16,8 @@ class CPU {
         
         GameBoy& gameboy;
     private:
+        bool IME_;
+
         /* Registers */
         // Basic 8-bit registers
         ByteRegister A_, B_, C_, D_, E_, H_, L_;
@@ -69,8 +71,14 @@ class CPU {
         void opcode_and(); // n
 
         /* BIT */
+        void _opcode_bit(uint8_t bit_to_test, uint8_t val);
+
+        void opcode_bit(uint8_t bit_to_test, const ByteRegister& reg);
+        void opcode_bit(uint8_t bit_to_test, const Address& reg);
 
         /* CALL */
+        void opcode_call();
+        void opcode_call_conditional();
 
         /* CCF */
         void opcode_ccf();
@@ -109,23 +117,26 @@ class CPU {
         void opcode_inc(WordRegister& reg); // R
 
         /* JP */
-        void opcode_jp(Address& loc); // nn
-        void opcode_jp(PairRegister& loc); // rr
-        void opcode_jp(); // e
+        void opcode_jp(); // nn
+        void opcode_jp(PairRegister& reg); // rr
+        void opcode_jp_conditional(); // cc nn
 
         /* JR */
+        void opcode_jr(); // e
+        void opcode_jr_conditional();
 
         /* LD */
-        void opcode_ld(ByteRegister& to, const ByteRegister& from); // r, r'
+        void opcode_ld(ByteRegister& to, const ByteRegister& from); // r, r
         void opcode_ld(ByteRegister& to, const Address& from); // r, (rr)
         void opcode_ld(const Address& to, const ByteRegister& from); // (rr), r
         void opcode_ld(const Address& to); // (rr), n
         void opcode_ld(ByteRegister& to); // r, n
         void opcode_ld_get_address(ByteRegister& to); // r, (nn)
         void opcode_ld(const ByteRegister& from); // (nn), r
-        void opcode_ld(WordRegister& to); // rr, nn
+        void opcode_ld(WordRegister& to); // R, nn
         void opcode_ld(const WordRegister& from); // (nn), R
         void opcode_ld(WordRegister& to, const WordRegister& from); // R, R
+        
 
         // TODO: 0XC1 AND 0XF8
         void opcode_ld_from_address();
@@ -140,6 +151,7 @@ class CPU {
         void opcode_nop();
 
         /* OR */
+        void opcode_or_a(uint8_t val);
         void opcode_or(const ByteRegister& reg); // r
         void opcode_or(const Address& reg); // (rr)
         void opcode_or(); // n
@@ -151,34 +163,55 @@ class CPU {
         void opcode_push(const WordRegister& from); // R
 
         /* RL */
+        uint8_t _opcode_rl(uint8_t val);
+
+        void opcode_rl(ByteRegister& reg);
+        void opcode_rl(Address& reg);
 
         /* RLA */
         void opcode_rla();
 
         /* RLC */
+        uint8_t _opcode_rlc(uint8_t val);
+        
+        void opcode_rlc(ByteRegister& reg);
+        void opcode_rlc(Address& reg);
 
         /* RLCA */
         void opcode_rlca();
 
         /* RES */
+        uint8_t _opcode_res(uint8_t bit_to_reset, uint8_t val);
+
+        void opcode_res(uint8_t bit_to_reset, ByteRegister& reg);
+        void opcode_res(uint8_t bit_to_reset, Address& reg);
 
         /* RET */
-        
+        void opcode_ret();
+        void opcode_ret_conditional();
 
         /* RETI */
         void opcode_reti();
 
         /* RR*/
+        uint8_t _opcode_rr(uint8_t val);
+        void opcode_rr(ByteRegister& reg);
+        void opcode_rr(Address& reg);
 
         /* RRA */
         void opcode_rra();
 
         /* RRC */
+        uint8_t _opcode_rrc(uint8_t val);
+
+        void opcode_rrc(ByteRegister& reg);
+        void opcode_rrc(Address& reg);
 
         /* RRCA */
         void opcode_rrca();
 
         /* RST */
+
 
         /* SBC */
         void opcode_sbc_a(const uint8_t subtrahend);
@@ -191,12 +224,25 @@ class CPU {
         void opcode_scf();
 
         /* SET */
+        uint8_t _opcode_set(uint8_t bit_to_set, uint8_t val);
+
+        void opcode_set(uint8_t bit_to_set, ByteRegister& reg);
+        void opcode_set(uint8_t bit_to_set, Address& reg);
 
         /* SLA */
+        uint8_t _opcode_sla(uint8_t val);
+        void opcode_sla(ByteRegister& reg);
+        void opcode_sla(Address& reg);
 
         /* SRA */
+        uint8_t _opcode_sra(uint8_t val);
+        void opcode_sra(ByteRegister& reg);
+        void opcode_sra(Address& reg);
 
         /* SRL */
+        uint8_t _opcode_srl(uint8_t val);
+        void opcode_srl(ByteRegister& reg);
+        void opcode_srl(Address& reg);
 
         /* STOP */
         void opcode_stop();
@@ -209,8 +255,12 @@ class CPU {
         void opcode_sub(); // n
 
         /* SWAP */
+        uint8_t _opcode_swap(uint8_t val);
+        void opcode_swap(ByteRegister& reg);
+        void opcode_swap(Address& reg);
 
         /* XOR */
+        void opcode_xor_a(uint8_t val);
         void opcode_xor(const ByteRegister& reg); // r
         void opcode_xor(const Address& reg); // (rr)
         void opcode_xor(); // n
