@@ -238,34 +238,34 @@ void CPU::opcode_dd() {  }
 void CPU::opcode_de() { opcode_sbc(); }
 void CPU::opcode_df() { opcode_rst(3); }
 
-void CPU::opcode_e0() { opcode_ld(???); }
+void CPU::opcode_e0() { opcode_ldh_from_A(); }
 void CPU::opcode_e1() { opcode_pop(HL_); }
-void CPU::opcode_e2() { opcode_ld(????); }
+void CPU::opcode_e2() { opcode_ldh_from_A(C_); }
 void CPU::opcode_e3() {  }
 void CPU::opcode_e4() {  }
 void CPU::opcode_e5() { opcode_push(HL_); }
 void CPU::opcode_e6() { opcode_and(); }
 void CPU::opcode_e7() { opcode_rst(4); }
-void CPU::opcode_e8() { opcode_add(????); }
+void CPU::opcode_e8() { opcode_add_hl(); }
 void CPU::opcode_e9() { opcode_jp(HL_); }
-void CPU::opcode_ea() { opcode_ld(???); }
+void CPU::opcode_ea() { opcode_ld(A_); }
 void CPU::opcode_eb() {  }
 void CPU::opcode_ec() {  }
 void CPU::opcode_ed() {  }
 void CPU::opcode_ee() { opcode_xor(); }
 void CPU::opcode_ef() { opcode_rst(5); }
 
-void CPU::opcode_f0() { opcode_ld(???); }
+void CPU::opcode_f0() { opcode_ldh_to_A(); }
 void CPU::opcode_f1() { opcode_pop(AF_); }
-void CPU::opcode_f2() { opcode_ld(???); }
+void CPU::opcode_f2() { opcode_ldh_to_A(C_); }
 void CPU::opcode_f3() { opcode_di(); }
 void CPU::opcode_f4() {  }
 void CPU::opcode_f5() { opcode_push(AF_); }
 void CPU::opcode_f6() { opcode_or(); }
 void CPU::opcode_f7() { opcode_rst(6); }
-void CPU::opcode_f8() { opcode_ld(wtaf?); }
+void CPU::opcode_f8() { opcode_ld_hl(); }
 void CPU::opcode_f9() { opcode_ld(SP_, HL_); }
-void CPU::opcode_fa() { opcode_ld(???); }
+void CPU::opcode_fa() { opcode_ld_get_address(A_); }
 void CPU::opcode_fb() { opcode_ei(); }
 void CPU::opcode_fc() {  }
 void CPU::opcode_fd() {  }

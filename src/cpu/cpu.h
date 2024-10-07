@@ -13,6 +13,8 @@ class CPU {
         auto execute_opcode();
         uint8_t get_next_byte();
         uint16_t get_next_word();
+        void stack_push(const WordRegister& reg);
+        void stack_pop(WordRegister& reg);
         
         GameBoy& gameboy;
 
@@ -28,7 +30,11 @@ class CPU {
 
 
     private:
-        
+        bool interrupts_enabled = false;
+        bool halted = false;
+    
+        std::vector<uint8_t> rst_vectors = {0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
+
         bool IME_;
 
         /* Registers */
@@ -71,7 +77,7 @@ class CPU {
         void opcode_add(const Address& addend); // (rr)
         void opcode_add(); // n
 
-        void opcode_add_hl(uint16_t addend);
+        void opcode_add_hl();
         void opcode_add(const WordRegister& addend); // R
 
         // TODO: 0xE8
@@ -150,14 +156,13 @@ class CPU {
         void opcode_ld(const WordRegister& from); // (nn), R
         void opcode_ld(WordRegister& to, const WordRegister& from); // R, R
 
-        // TODO: 0XC1 AND 0XF8
-        void opcode_ld_from_address();
-        void opcode_ld_to_address();
+        void opcode_ld_hl(); // HL, SP + e
 
         /* LDH */
-        void opcode_ldh(ByteRegister& to, const ByteRegister& from); // r, (r8)
-        void opcode_ldh(); // (r8), r
-        void opcode_ldh(); // r, (n8)
+        void opcode_ldh_to_A(const ByteRegister& from);
+        void opcode_ldh_from_A(const ByteRegister& to);
+        void opcode_ldh_to_A();
+        void opcode_ldh_from_A();
 
         /* NOP */
         void opcode_nop();
@@ -223,7 +228,7 @@ class CPU {
         void opcode_rrca();
 
         /* RST */
-        void opcode_rst(uint8_t val);
+        void opcode_rst(uint8_t index);
 
         /* SBC */
         void opcode_sbc_a(const uint8_t subtrahend);

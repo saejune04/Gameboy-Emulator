@@ -52,15 +52,23 @@ void CPU::opcode_add() {
     opcode_add_a(get_next_byte());
 } // n
 
-void CPU::opcode_add_hl(uint16_t addend) {
+void CPU::opcode_add_hl() {
+    int8_t e = static_cast<int8_t>(get_next_byte());
+    uint16_t SP_val = SP_.get_val();
+    int res = static_cast<int>(SP_val + e);
 
+    F_.set_zero_flag(false);
+    F_.set_subtract_flag(false);
+    F_.set_half_carry_flag((e & 0xFF) + (SP_val & 0xFF) < 0 || (e & 0xFF) + (SP_val & 0xFF) >= 0xFF);
+    F_.set_carry_flag(res < 0 || res >= 0xFFFF);
+
+    SP_.set_val(static_cast<uint16_t>(res));
 }
 
 void CPU::opcode_add(const WordRegister& addend) {
-    
+    //todo
 } // R
 
-// TODO: 0xE8
 
 /* AND */
 void CPU::opcode_and_a(uint8_t val) {
@@ -103,26 +111,16 @@ void CPU::opcode_bit(uint8_t bit_to_test, const Address& reg) {
 
 /* CALL */
 void CPU::opcode_call() {
-    uint8_t lsb = get_next_byte();
-    uint8_t msb = get_next_byte();
-    uint16_t nn = (msb << 8) + lsb;
-    SP_.decrement();
-    gameboy.mmu.write(Address(SP_), msb);
-    SP_.decrement();
-    gameboy.mmu.write(Address(SP_), lsb);
+    uint16_t nn = get_next_word();
+    stack_push(PC_);
     PC_.set_val(nn);
 }
 
 void CPU::opcode_call(Condition condition) {
-    uint8_t lsb = get_next_byte();
-    uint8_t msb = get_next_byte();
-    uint16_t nn = (msb << 8) + lsb;
     if (check_condition(condition)) {
-        SP_.decrement();
-        gameboy.mmu.write(Address(SP_), msb);
-        SP_.decrement();
-        gameboy.mmu.write(Address(SP_), lsb);
-        PC_.set_val(nn);
+        opcode_call();
+    } else {
+        get_next_word();
     }
 }
 
@@ -196,17 +194,17 @@ void CPU::opcode_dec(WordRegister& reg) {
 
 /* DI */
 void CPU::opcode_di() {
-    //TODO
+    interrupts_enabled = true;
 }
 
 /* EI */
 void CPU::opcode_ei() {
-    //TODO
+    interrupts_enabled = false;
 }
 
 /* HALT */
 void CPU::opcode_halt() {
-    //TODO
+    halted = true;
 }
 
 /* INC */
@@ -314,29 +312,52 @@ void CPU::opcode_ld(WordRegister& to, const WordRegister& from) {
     to.set_val(from.get_val());
 } // R, R
 
+void CPU::opcode_ld_hl() {
+    int8_t e = static_cast<int8_t>(get_next_byte());
+    uint16_t SP_val = SP_.get_val();
+    int res = static_cast<int>(SP_val + e);
 
+    F_.set_zero_flag(false);
+    F_.set_subtract_flag(false);
+    F_.set_half_carry_flag((e & 0xFF) + (SP_val & 0xFF) < 0 || (e & 0xFF) + (SP_val & 0xFF) >= 0xFF);
+    F_.set_carry_flag(res < 0 || res >= 0xFFFF);
 
-// TODO: 0XC1 AND 0XF8
-void CPU::opcode_ld_from_address() {
-    //todo???
+    HL_.set_val(static_cast<uint16_t>(res));
+
 }
-void CPU::opcode_ld_to_address() {
-    // todo???
-}
+
+// // TODO: 0XC1 AND 0XF8
+// void CPU::opcode_ld_from_address() {
+//     //todo???
+// }
+// void CPU::opcode_ld_to_address() {
+//     // todo???
+// }
 
 /* LDH */
-void CPU::opcode_ldh(ByteRegister& to, const ByteRegister& from) {
-    // todo
-} // r, (r8)
-void CPU::opcode_ldh() {
-    // todo
-} // (r8), r
-void CPU::opcode_ldh() {
-    // todo
-} // r, (n8)
+void CPU::opcode_ldh_to_A(const ByteRegister& from) {
+    uint16_t address = 0xFF00 + from.get_val();
+    A_.set_val(gameboy.mmu.read(Address(address)));
+}
+
+void CPU::opcode_ldh_from_A(const ByteRegister& to) {
+    uint16_t address = 0xFF00 + to.get_val();
+    gameboy.mmu.write(Address(address), A_.get_val());
+}
+
+void CPU::opcode_ldh_to_A() {
+    uint16_t address = 0xFF00 + get_next_byte();
+    A_.set_val(gameboy.mmu.read(Address(address)));
+}
+
+void CPU::opcode_ldh_from_A() {
+    uint16_t address = 0xFF00 + get_next_byte();
+    gameboy.mmu.write(Address(address), A_.get_val());
+}
+
 
 /* NOP */
-void opcode_nop() {
+void CPU::opcode_nop() {
     return;
 }
 
@@ -365,20 +386,12 @@ void CPU::opcode_or() {
 
 /* POP */
 void CPU::opcode_pop(WordRegister& to) {
-    uint8_t lsb = gameboy.mmu.read(Address(SP_));
-    SP_.increment();
-    uint8_t msb = gameboy.mmu.read(Address(SP_));
-    SP_.increment();
-    uint16_t res = msb << 8 + lsb;
-    to.set_val(res);
+    stack_pop(to);
 } // R
 
 /* PUSH */
 void CPU::opcode_push(const WordRegister& from) {
-    SP_.decrement();
-    gameboy.mmu.write(Address(SP_), from.high_byte());
-    SP_.decrement();
-    gameboy.mmu.write(Address(SP_), from.low_byte());
+    stack_push(from);
 } // R
 
 /* RL */
@@ -453,24 +466,12 @@ void CPU::opcode_res(uint8_t bit_to_reset, Address& reg) {
 
 /* RET */
 void CPU::opcode_ret() {
-    uint8_t lsb = gameboy.mmu.read(Address(SP_));
-    SP_.increment();
-    uint8_t msb = gameboy.mmu.read(Address(SP_));
-    SP_.increment();
-    
-    uint16_t res = (msb << 8) + lsb;
-    PC_.set_val(res);
+    stack_pop(PC_);
 }
 
 void CPU::opcode_ret(Condition condition) {
     if (check_condition(condition)) {
-        uint8_t lsb = gameboy.mmu.read(Address(SP_));
-        SP_.increment();
-        uint8_t msb = gameboy.mmu.read(Address(SP_));
-        SP_.increment();
-        
-        uint16_t res = (msb << 8) + lsb;
-        PC_.set_val(res);
+        opcode_ret();
     }
 }
 
@@ -535,8 +536,9 @@ void CPU::opcode_rrca() {
 }
 
 /* RST */
-void opcode_rst(uint8_t val) {
-    // TODO
+void CPU::opcode_rst(uint8_t index) {
+    stack_push(PC_);
+    PC_.set_val(rst_vectors.at(index));
 }
 
 /* SBC */
@@ -654,7 +656,7 @@ void CPU::opcode_srl(Address& reg) {
 
 /* STOP */
 void CPU::opcode_stop() {
-    // TODO 
+    // TODO, halted=true? 
 }
 
 /* SUB */
