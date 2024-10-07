@@ -81,5 +81,4 @@ class PairRegister : public WordRegister {
 };
 
 
-
 #endif

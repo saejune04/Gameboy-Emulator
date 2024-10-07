@@ -9,6 +9,11 @@ CPU::CPU(GameBoy& gameboy):
 {
 }
 
+void CPU::tick() {
+    execute_opcode();
+}
+
+
 uint8_t CPU::get_next_byte() {
     uint8_t next_byte = gameboy.mmu.read(Address(PC_));
     PC_.increment();
@@ -49,6 +54,12 @@ bool CPU::check_condition(Condition condition) {
     }
 }
 
-auto CPU::execute_opcode() {
-    
+void CPU::execute_opcode() {
+    uint8_t opcode = get_next_byte();
+    if (opcode != 0xCB) {
+        uint8_t cb_opcode = get_next_byte();
+        execute_CB_opcode(cb_opcode);
+    } else {
+        execute_non_CB_opcode(opcode);
+    }
 }
