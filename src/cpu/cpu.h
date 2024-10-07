@@ -15,7 +15,20 @@ class CPU {
         uint16_t get_next_word();
         
         GameBoy& gameboy;
+
+        enum class Condition {
+            Z,
+            NZ,
+            C,
+            NC
+        };
+
+        bool check_condition(Condition condition);
+
+
+
     private:
+        
         bool IME_;
 
         /* Registers */
@@ -78,7 +91,7 @@ class CPU {
 
         /* CALL */
         void opcode_call();
-        void opcode_call_conditional();
+        void opcode_call(Condition condition);
 
         /* CCF */
         void opcode_ccf();
@@ -119,11 +132,11 @@ class CPU {
         /* JP */
         void opcode_jp(); // nn
         void opcode_jp(PairRegister& reg); // rr
-        void opcode_jp_conditional(); // cc nn
+        void opcode_jp(Condition condition); // cc nn
 
         /* JR */
         void opcode_jr(); // e
-        void opcode_jr_conditional();
+        void opcode_jr(Condition condition);
 
         /* LD */
         void opcode_ld(ByteRegister& to, const ByteRegister& from); // r, r
@@ -133,10 +146,9 @@ class CPU {
         void opcode_ld(ByteRegister& to); // r, n
         void opcode_ld_get_address(ByteRegister& to); // r, (nn)
         void opcode_ld(const ByteRegister& from); // (nn), r
-        void opcode_ld(WordRegister& to); // R, nn
+        void opcode_ld(WordRegister& to); // R, nn and rr, nn
         void opcode_ld(const WordRegister& from); // (nn), R
         void opcode_ld(WordRegister& to, const WordRegister& from); // R, R
-        
 
         // TODO: 0XC1 AND 0XF8
         void opcode_ld_from_address();
@@ -188,7 +200,7 @@ class CPU {
 
         /* RET */
         void opcode_ret();
-        void opcode_ret_conditional();
+        void opcode_ret(Condition condition);
 
         /* RETI */
         void opcode_reti();
@@ -211,7 +223,7 @@ class CPU {
         void opcode_rrca();
 
         /* RST */
-
+        void opcode_rst(uint8_t val);
 
         /* SBC */
         void opcode_sbc_a(const uint8_t subtrahend);

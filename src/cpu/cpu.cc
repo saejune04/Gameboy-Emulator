@@ -22,6 +22,16 @@ uint16_t CPU::get_next_word() {
     return res;
 }
 
+bool CPU::check_condition(Condition condition) {
+    switch (condition) {
+        case Z: return F_.get_zero_flag() == 1;
+        case NZ: return F_.get_zero_flag() == 0;
+        case C: return F_.get_carry_flag() == 1;
+        case NC: return F_.get_carry_flag() == 0;
+        default: return false;
+    }
+}
+
 auto CPU::execute_opcode() {
     
 }
