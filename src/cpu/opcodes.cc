@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "registers.h"
+#include "../gameboy.h"
 
 /* ADC */
 void CPU::opcode_adc_a(uint8_t addend) {
@@ -178,7 +179,7 @@ void CPU::opcode_dec(ByteRegister& reg) {
     F_.set_half_carry_flag(((old_reg_val & 0xF) - 1) < 0);
 } // r
 
-void CPU::opcode_dec(Address& reg) {
+void CPU::opcode_dec(Address&& reg) {
     uint8_t old_reg_val = gameboy.mmu.read(reg);
     int res = old_reg_val - 1;
     gameboy.mmu.write(reg, static_cast<uint8_t>(res));  // TODO: check that this cast actually works lol (same with inc)
@@ -218,7 +219,7 @@ void CPU::opcode_inc(ByteRegister& reg) {
     F_.set_half_carry_flag(((old_reg_val & 0xF) + 1) > 0xF);
 } // r
 
-void CPU::opcode_inc(Address& reg) {
+void CPU::opcode_inc(Address&& reg) {
     uint8_t old_reg_val = gameboy.mmu.read(reg);
     uint16_t res = old_reg_val + 1;
     gameboy.mmu.write(reg, static_cast<uint8_t>(res));
@@ -411,7 +412,7 @@ void CPU::opcode_rl(ByteRegister& reg) {
     reg.set_val(_opcode_rl(reg.get_val()));
 }
 
-void CPU::opcode_rl(Address& reg) {
+void CPU::opcode_rl(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_rl(gameboy.mmu.read(reg)));
 }
 
@@ -438,7 +439,7 @@ void CPU::opcode_rlc(ByteRegister& reg) {
     reg.set_val(_opcode_rlc(reg.get_val()));
 }
 
-void CPU::opcode_rlc(Address& reg) {
+void CPU::opcode_rlc(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_rlc(gameboy.mmu.read(reg)));
 }
 
@@ -460,7 +461,7 @@ void CPU::opcode_res(uint8_t bit_to_reset, ByteRegister& reg) {
     reg.set_val(_opcode_res(bit_to_reset, reg.get_val()));
 }
 
-void CPU::opcode_res(uint8_t bit_to_reset, Address& reg) {
+void CPU::opcode_res(uint8_t bit_to_reset, Address&& reg) {
     gameboy.mmu.write(reg, _opcode_res(bit_to_reset, gameboy.mmu.read(reg)));
 }
 
@@ -498,7 +499,7 @@ void CPU::opcode_rr(ByteRegister& reg) {
     reg.set_val(_opcode_rr(reg.get_val()));
 }
 
-void CPU::opcode_rr(Address& reg) {
+void CPU::opcode_rr(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_rr(gameboy.mmu.read(reg)));
 }
 
@@ -525,7 +526,7 @@ void CPU::opcode_rrc(ByteRegister& reg) {
     reg.set_val(_opcode_rrc(reg.get_val()));
 }
 
-void CPU::opcode_rrc(Address& reg) {
+void CPU::opcode_rrc(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_rrc(gameboy.mmu.read(reg)));
 }
 
@@ -586,7 +587,7 @@ void CPU::opcode_set(uint8_t bit_to_set, ByteRegister& reg) {
     reg.set_val(_opcode_set(bit_to_set, reg.get_val()));
 }
 
-void CPU::opcode_set(uint8_t bit_to_set, Address& reg) {
+void CPU::opcode_set(uint8_t bit_to_set, Address&& reg) {
     gameboy.mmu.write(reg, _opcode_set(bit_to_set, gameboy.mmu.read(reg)));
 }
 
@@ -607,7 +608,7 @@ void CPU::opcode_sla(ByteRegister& reg) {
     reg.set_val(reg.get_val());
 }
 
-void CPU::opcode_sla(Address& reg) {
+void CPU::opcode_sla(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_sla(gameboy.mmu.read(reg)));
 }
 
@@ -629,7 +630,7 @@ void CPU::opcode_sra(ByteRegister& reg) {
     reg.set_val(reg.get_val());
 }
 
-void CPU::opcode_sra(Address& reg) {
+void CPU::opcode_sra(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_sra(gameboy.mmu.read(reg)));
 }
 
@@ -650,7 +651,7 @@ void CPU::opcode_srl(ByteRegister& reg) {
     reg.set_val(_opcode_srl(reg.get_val()));
 }
 
-void CPU::opcode_srl(Address& reg) {
+void CPU::opcode_srl(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_srl(gameboy.mmu.read(reg)));
 }
 
@@ -698,7 +699,7 @@ void CPU::opcode_swap(ByteRegister& reg) {
     reg.set_val(_opcode_swap(reg.get_val()));
 }
 
-void CPU::opcode_swap(Address& reg) {
+void CPU::opcode_swap(Address&& reg) {
     gameboy.mmu.write(reg, _opcode_swap(gameboy.mmu.read(reg)));
 }
 

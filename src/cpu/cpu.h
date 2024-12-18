@@ -2,10 +2,11 @@
 #define CPU_H
 
 #include <cstdint>
+#include <vector>
 #include "registers.h"
-#include "address.h"
-#include "mmu.h"
-#include "gameboy.h"
+#include "../memory/address.h"
+
+class GameBoy;
 
 class CPU {
     public:
@@ -16,7 +17,6 @@ class CPU {
         void stack_pop(WordRegister& reg);
         void execute_opcode();
         
-        GameBoy& gameboy;
 
         enum class Condition {
             Z,
@@ -30,6 +30,7 @@ class CPU {
 
 
     private:
+        GameBoy& gameboy;
 
         bool interrupts_enabled = false;
         bool halted = false;
@@ -56,16 +57,6 @@ class CPU {
         PairRegister AF_, BC_, DE_, HL_; // 
 
         // Opcodes
-        /** Notation
-         * r = 8-bit register
-         * R = 16-bit register
-         * rr = pair register
-         * n = next byte in memory (as pointed to by the program counter)
-         * nn = next word in memory
-         * (x) = byte stored at location x in memory
-         * (r8) = byte stored at location 0xFF00 + (r) in memory
-         */
-
         /* ADC */
         void opcode_adc_a(uint8_t addend);
         void opcode_adc(const ByteRegister& addend); // r
@@ -118,7 +109,7 @@ class CPU {
 
         /* DEC */
         void opcode_dec(ByteRegister& reg); // r
-        void opcode_dec(Address& reg); // (rr)
+        void opcode_dec(Address&& reg); // (rr)
 
         void opcode_dec(WordRegister& reg); // R
 
@@ -133,7 +124,7 @@ class CPU {
 
         /* INC */
         void opcode_inc(ByteRegister& reg); // r
-        void opcode_inc(Address& reg); // (rr)
+        void opcode_inc(Address&& reg); // (rr)
         void opcode_inc(WordRegister& reg); // R
 
         /* JP */
@@ -184,7 +175,7 @@ class CPU {
         uint8_t _opcode_rl(uint8_t val);
 
         void opcode_rl(ByteRegister& reg);
-        void opcode_rl(Address& reg);
+        void opcode_rl(Address&& reg);
 
         /* RLA */
         void opcode_rla();
@@ -193,7 +184,7 @@ class CPU {
         uint8_t _opcode_rlc(uint8_t val);
         
         void opcode_rlc(ByteRegister& reg);
-        void opcode_rlc(Address& reg);
+        void opcode_rlc(Address&& reg);
 
         /* RLCA */
         void opcode_rlca();
@@ -202,7 +193,7 @@ class CPU {
         uint8_t _opcode_res(uint8_t bit_to_reset, uint8_t val);
 
         void opcode_res(uint8_t bit_to_reset, ByteRegister& reg);
-        void opcode_res(uint8_t bit_to_reset, Address& reg);
+        void opcode_res(uint8_t bit_to_reset, Address&& reg);
 
         /* RET */
         void opcode_ret();
@@ -214,7 +205,7 @@ class CPU {
         /* RR*/
         uint8_t _opcode_rr(uint8_t val);
         void opcode_rr(ByteRegister& reg);
-        void opcode_rr(Address& reg);
+        void opcode_rr(Address&& reg);
 
         /* RRA */
         void opcode_rra();
@@ -223,7 +214,7 @@ class CPU {
         uint8_t _opcode_rrc(uint8_t val);
 
         void opcode_rrc(ByteRegister& reg);
-        void opcode_rrc(Address& reg);
+        void opcode_rrc(Address&& reg);
 
         /* RRCA */
         void opcode_rrca();
@@ -245,22 +236,22 @@ class CPU {
         uint8_t _opcode_set(uint8_t bit_to_set, uint8_t val);
 
         void opcode_set(uint8_t bit_to_set, ByteRegister& reg);
-        void opcode_set(uint8_t bit_to_set, Address& reg);
+        void opcode_set(uint8_t bit_to_set, Address&& reg);
 
         /* SLA */
         uint8_t _opcode_sla(uint8_t val);
         void opcode_sla(ByteRegister& reg);
-        void opcode_sla(Address& reg);
+        void opcode_sla(Address&& reg);
 
         /* SRA */
         uint8_t _opcode_sra(uint8_t val);
         void opcode_sra(ByteRegister& reg);
-        void opcode_sra(Address& reg);
+        void opcode_sra(Address&& reg);
 
         /* SRL */
         uint8_t _opcode_srl(uint8_t val);
         void opcode_srl(ByteRegister& reg);
-        void opcode_srl(Address& reg);
+        void opcode_srl(Address&& reg);
 
         /* STOP */
         void opcode_stop();
@@ -275,7 +266,7 @@ class CPU {
         /* SWAP */
         uint8_t _opcode_swap(uint8_t val);
         void opcode_swap(ByteRegister& reg);
-        void opcode_swap(Address& reg);
+        void opcode_swap(Address&& reg);
 
         /* XOR */
         void opcode_xor_a(uint8_t val);

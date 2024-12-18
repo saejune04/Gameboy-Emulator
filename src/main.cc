@@ -1,5 +1,10 @@
 #include <iostream>
+#include "gameboy.h"
 int main() {
-    std::cout << "hello world" << std::endl;
+    GameBoy* gb = new GameBoy();
+    while(true) {
+        
+    }
+    
     return 0;
 }

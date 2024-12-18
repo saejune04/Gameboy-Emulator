@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "../gameboy.h"
 
 CPU::CPU(GameBoy& gameboy): 
     gameboy(gameboy),
@@ -39,7 +40,7 @@ void CPU::stack_pop(WordRegister& reg) {
     SP_.increment();
     uint8_t msb = gameboy.mmu.read(Address(SP_));
     SP_.increment();
-    uint16_t res = msb << 8 + lsb;
+    uint16_t res = msb << (8 + lsb);
     reg.set_val(res);
 }
 
@@ -56,7 +57,7 @@ bool CPU::check_condition(Condition condition) {
 
 void CPU::execute_opcode() {
     uint8_t opcode = get_next_byte();
-    if (opcode != 0xCB) {
+    if (opcode == 0xCB) {
         uint8_t cb_opcode = get_next_byte();
         execute_CB_opcode(cb_opcode);
     } else {

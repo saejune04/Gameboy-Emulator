@@ -2,7 +2,7 @@
 #define ADDRESS_H
 
 #include <cstdint>
-#include "registers.h"
+#include "../cpu/registers.h"
 
 class Address {
     public:
